@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ChatBot</string>
+    <string name="chatItemsList" translatable="false">chatItemsList</string>
+    <string name="userPromptTestTag" translatable="false">userPromptTestTag</string>
+    <string name="chatItemTestTag" translatable="false">chatItemTestTag</string>
+    <string name="enterPromptButtonTestTag" translatable="false">enterPromptButtonTestTag</string>
+</resources>
