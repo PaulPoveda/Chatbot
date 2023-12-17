@@ -69,7 +69,7 @@ class DefaultRepositoryUnitTest {
 private class FakeMockedNetworkServer : INetworkDataSource {
     private val data = "fakeData"
 
-    override suspend fun getResponse(message: Message): Message {
+    override suspend fun getResponse(messageToReplyTo: Message): Message {
         return coroutineScope {
             val botMessage = async(Dispatchers.Default) { Message(Author(Author.BOT_NAME), data) }
             botMessage.await()

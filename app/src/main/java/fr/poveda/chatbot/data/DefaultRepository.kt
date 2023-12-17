@@ -8,12 +8,12 @@ import javax.inject.Inject
 
 /**
  * Default implementation of [IRepository]
- *  Single entry point for managing conversation data.
+ * Single entry point for managing conversation data.
  */
 class DefaultRepository @Inject constructor(private val networkDataSource: INetworkDataSource) : IRepository {
-    override suspend fun getBotResponse(message: Message): Message {
+    override suspend fun getBotResponse(messageToReplyTo: Message): Message {
         return withContext(Dispatchers.IO) {
-            networkDataSource.getResponse(message)
+            networkDataSource.getResponse(messageToReplyTo)
         }
     }
 }
