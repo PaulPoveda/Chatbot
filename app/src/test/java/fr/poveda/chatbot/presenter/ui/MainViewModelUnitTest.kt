@@ -1,5 +1,20 @@
 package fr.poveda.chatbot.presenter.ui
 
+import fr.poveda.chatbot.data.IRepository
+import fr.poveda.chatbot.data.model.Author
+import fr.poveda.chatbot.data.model.Message
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
+
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
@@ -61,5 +76,13 @@ class MainViewModelUnitTest {
     @After
     fun tearDownDispatcher() {
         Dispatchers.resetMain()
+    }
+}
+
+private class MockedRepository : IRepository {
+    private val data = "fakeData"
+
+    override suspend fun getBotResponse(messageToReplyTo: Message): Message {
+        return Message(Author(Author.BOT_NAME), data)
     }
 }
