@@ -9,6 +9,9 @@ import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlin.random.Random
 
+/**
+ * Mocked server to send random bot responses
+ */
 class MockedNetworkServer @Inject constructor(): INetworkDataSource {
     private var serviceLatencyInMillis = Random.nextLong(1000L, 2500L)
     private val bot = Author(Author.BOT_NAME)
