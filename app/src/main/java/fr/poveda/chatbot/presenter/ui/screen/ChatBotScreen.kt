@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBarDefaults.containerColor
@@ -26,9 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import fr.poveda.chatbot.R
 import fr.poveda.chatbot.data.model.Author
@@ -48,42 +42,44 @@ import fr.poveda.chatbot.data.model.Message
 import fr.poveda.chatbot.presenter.ui.MainViewModel
 import fr.poveda.chatbot.presenter.ui.theme.ChatBotTheme
 import fr.poveda.chatbot.presenter.ui.theme.md_theme_light_inversePrimary
+import fr.poveda.chatbot.presenter.ui.theme.md_theme_light_primaryContainer
 import fr.poveda.chatbot.presenter.ui.theme.md_theme_light_secondaryContainer
 
 
 @Composable
-fun ChatBotScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hiltViewModel()) {
+fun ChatBotScreen(viewModel: MainViewModel = hiltViewModel()) {
     val conversation by viewModel.conversation.collectAsState()
+    val chatBoxValue by viewModel.chatBoxValue
+
     ChatBotScreen(
         conversation = conversation,
-        userMessageEnteredListener = { msg -> viewModel.updateConversation(msg) },
-        modifier = Modifier)
+        chatBoxValue = chatBoxValue,
+        onValueChange = viewModel::onChatBoxValueChanged,
+        onSendChatClickListener = viewModel::onSendMessage,
+        modifier = Modifier
+    )
 }
 
 @Composable
 internal fun ChatBotScreen(
     conversation: Conversation,
-    userMessageEnteredListener: (String) -> Unit,
+    chatBoxValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onSendChatClickListener: () -> Unit,
     modifier: Modifier
 ) {
-    ConstraintLayout(modifier = modifier.fillMaxSize()) {
-        val (messages, chatBox) = createRefs()
-
+    Column(modifier = modifier.fillMaxSize()) {
         val listState = rememberLazyListState()
+
         LaunchedEffect(conversation.messages.size) {
             listState.animateScrollToItem(conversation.messages.size)
         }
+
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .constrainAs(messages) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(chatBox.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    height = Dimension.fillToConstraints
-                }
+                .weight(1f)
                 .testTag(stringResource(id = R.string.chatItemsList)),
             contentPadding = PaddingValues(16.dp)
         ) {
@@ -91,24 +87,23 @@ internal fun ChatBotScreen(
                 ChatItem(item)
             }
         }
+
         ChatBox(
-            userMessageEnteredListener,
-            modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(chatBox) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+            chatBoxValue,
+            onValueChange = onValueChange,
+            onSendChatClickListener = onSendChatClickListener,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
 fun ChatItem(message: Message) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(4.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
         Box(
             modifier = Modifier
                 .testTag(stringResource(id = R.string.chatItemTestTag))
@@ -121,7 +116,7 @@ fun ChatItem(message: Message) {
                         bottomEnd = if (message.isBotTheAuthorOfTheMessage()) 0f else 48f
                     )
                 )
-                .background(md_theme_light_secondaryContainer)
+                .background(if (message.isBotTheAuthorOfTheMessage()) md_theme_light_secondaryContainer else md_theme_light_primaryContainer)
                 .padding(16.dp)
         ) {
             Text(text = message.content)
@@ -129,23 +124,21 @@ fun ChatItem(message: Message) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatBox(
-    onSendChatClickListener: (String) -> Unit,
+    chatBoxValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onSendChatClickListener: () -> Unit,
     modifier: Modifier
 ) {
-    var chatBoxValue by remember { mutableStateOf(TextFieldValue("")) }
     Row(modifier = modifier.padding(16.dp)) {
         TextField(
             value = chatBoxValue,
-            onValueChange = { newText ->
-                chatBoxValue = newText
-            },
+            onValueChange = onValueChange,
             modifier = Modifier
-                .testTag(stringResource(id = R.string.userPromptTestTag))
                 .weight(1f)
-                .padding(4.dp),
+                .padding(4.dp)
+                .testTag(stringResource(id = R.string.userPromptTestTag)),
             shape = RoundedCornerShape(24.dp),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = containerColor,
@@ -161,10 +154,7 @@ fun ChatBox(
         )
         IconButton(
             onClick = {
-                val msg = chatBoxValue.text
-                if (msg.isBlank()) return@IconButton
-                onSendChatClickListener(chatBoxValue.text)
-                chatBoxValue = TextFieldValue("")
+                onSendChatClickListener()
             },
             modifier = Modifier
                 .clip(CircleShape)
@@ -190,18 +180,26 @@ fun ChatBox(
 @Composable
 fun ChatBotScreenPreview() {
     ChatBotTheme {
-        ChatBotScreen(
-            conversation = Conversation(listOf(
+        val mockConversation = Conversation(
+            messages = listOf(
                 Message(
-                    Author(Author.USER_NAME),
-                    "Hello bot"
+                    author = Author(Author.USER_NAME),
+                    content = "Hello bot"
                 ),
                 Message(
-                    Author(Author.BOT_NAME),
-                    "Hello fellow user",
-                )),
-            ),
-            userMessageEnteredListener = {},
+                    author = Author(Author.BOT_NAME),
+                    content = "Hello fellow user"
+                )
+            )
+        )
+
+        val mockChatBoxValue = TextFieldValue("")
+
+        ChatBotScreen(
+            conversation = mockConversation,
+            chatBoxValue = mockChatBoxValue,
+            onValueChange = {},
+            onSendChatClickListener = {},
             modifier = Modifier
         )
     }
