@@ -1,5 +1,8 @@
 package fr.poveda.chatbot.presenter.ui
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +30,21 @@ class MainViewModel @Inject constructor(
     )
     // Exposed variable with read only state
     val conversation: StateFlow<Conversation> = _conversation
+
+    private val _chatBoxValue = mutableStateOf(TextFieldValue(""))
+    val chatBoxValue: MutableState<TextFieldValue> = _chatBoxValue
+
+    fun onChatBoxValueChanged(newValue: TextFieldValue) {
+        _chatBoxValue.value = newValue
+    }
+
+    fun onSendMessage() {
+        val msg = chatBoxValue.value.text
+        if (msg.isNotBlank()) {
+            updateConversation(msg)
+            onChatBoxValueChanged(TextFieldValue(""))
+        }
+    }
 
     fun updateConversation(message: String) {
         val userMessage = Message(Author(Author.USER_NAME), message)

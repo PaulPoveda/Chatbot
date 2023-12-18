@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        ChatBotScreen(modifier = Modifier)
+                        ChatBotScreen()
                     }
                 }
             }
