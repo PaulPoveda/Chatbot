@@ -48,9 +48,9 @@ class MockedNetworkServer @Inject constructor(): INetworkDataSource {
         }
     }
 
-    override suspend fun getResponse(message: Message): Message {
+    override suspend fun getResponse(messageToReplyTo: Message): Message {
         return coroutineScope {
-            val botMessage = async(Dispatchers.Default) { getBotMessage(message) }
+            val botMessage = async(Dispatchers.Default) { getBotMessage(messageToReplyTo) }
             botMessage.await()
         }
     }

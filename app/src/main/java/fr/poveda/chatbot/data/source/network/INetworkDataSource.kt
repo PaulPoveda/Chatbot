@@ -3,8 +3,13 @@ package fr.poveda.chatbot.data.source.network
 import fr.poveda.chatbot.data.model.Message
 
 /**
- * Main entry point for accessing bot message responses from the network.
+ * Main interface to get answers coming from a network source
  */
 interface INetworkDataSource {
-    suspend fun getResponse(message: Message): Message
+    /**
+     * Get a response from a distant network source
+     * @param messageToReplyTo: the message to respond to
+     * @return a response [Message]
+     */
+    suspend fun getResponse(messageToReplyTo: Message): Message
 }
