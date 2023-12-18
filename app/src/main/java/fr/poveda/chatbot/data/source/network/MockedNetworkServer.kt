@@ -6,6 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -54,4 +57,16 @@ class MockedNetworkServer @Inject constructor(): INetworkDataSource {
             botMessage.await()
         }
     }
+
+    override suspend fun getResponses(): Flow<Message> {
+        return latestMessages
+    }
+
+    private val latestMessages: Flow<Message> = flow {
+        // Executes on the IO dispatcher
+        while(true) {
+            emit(Message(bot, botOtherResponses.random()))
+            delay(serviceLatencyInMillis)
+        }
+    }.flowOn(Dispatchers.IO)
 }

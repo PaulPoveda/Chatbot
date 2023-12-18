@@ -35,6 +35,11 @@ class MainViewModel @Inject constructor(
             _conversation.emit(_conversation.value + Conversation(listOf(userMessage)))
             // Fetch bot response and update UI
             _conversation.emit(_conversation.value + Conversation(listOf(repository.getBotResponse(userMessage))))
+
+            // Fetch a fixed number of response from a flow and display it
+            /*repository.getBotResponses().take(3).collect {
+                _conversation.emit(_conversation.value + Conversation(listOf(it)))
+            }*/
         }
     }
 }

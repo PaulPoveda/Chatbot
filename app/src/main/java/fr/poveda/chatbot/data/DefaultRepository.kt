@@ -3,6 +3,7 @@ package fr.poveda.chatbot.data
 import fr.poveda.chatbot.data.model.Message
 import fr.poveda.chatbot.data.source.network.INetworkDataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -15,5 +16,9 @@ class DefaultRepository @Inject constructor(private val networkDataSource: INetw
         return withContext(Dispatchers.IO) {
             networkDataSource.getResponse(message)
         }
+    }
+
+    override suspend fun getBotResponses(): Flow<Message> {
+        return networkDataSource.getResponses()
     }
 }
