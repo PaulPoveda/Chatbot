@@ -5,6 +5,6 @@ data class Message(
     var content: String
 ) {
     fun isBotTheAuthorOfTheMessage() : Boolean {
-        return author.name == Author.BOT_NAME
+        return author == Author.BOT
     }
 }

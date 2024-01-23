@@ -22,7 +22,7 @@ import org.junit.Test
 class DefaultRepositoryUnitTest {
     private lateinit var defaultRepository: DefaultRepository
     private lateinit var fakeMockedNetworkServer: FakeMockedNetworkServer
-    private val userAuthor = Author(Author.USER_NAME)
+    private val userAuthor = Author.USER
     private val message1 = Message(userAuthor, "ola")
     private val message2 = Message(userAuthor, "this is a test")
     private val message3 = Message(userAuthor, "are you a real person ?")
@@ -53,7 +53,7 @@ class DefaultRepositoryUnitTest {
                 val responseMessage = defaultRepository.getBotResponse(message)
                 Assert.assertNotNull(responseMessage)
                 Assert.assertNotNull(responseMessage.content)
-                Assert.assertEquals(Author.BOT_NAME, responseMessage.author.name)
+                Assert.assertEquals(Author.BOT, responseMessage.author)
             }
         }
         advanceUntilIdle()
@@ -71,7 +71,7 @@ private class FakeMockedNetworkServer : INetworkDataSource {
 
     override suspend fun getResponse(message: Message): Message {
         return coroutineScope {
-            val botMessage = async(Dispatchers.Default) { Message(Author(Author.BOT_NAME), data) }
+            val botMessage = async(Dispatchers.Default) { Message(Author.BOT, data) }
             botMessage.await()
         }
     }
