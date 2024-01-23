@@ -181,13 +181,13 @@ fun ChatBox(
 fun ChatBotScreenPreview() {
     ChatBotTheme {
         val mockConversation = Conversation(
-            messages = listOf(
+            messages = mutableListOf(
                 Message(
-                    author = Author(Author.USER_NAME),
+                    author = Author.USER,
                     content = "Hello bot"
                 ),
                 Message(
-                    author = Author(Author.BOT_NAME),
+                    author = Author.BOT,
                     content = "Hello fellow user"
                 )
             )

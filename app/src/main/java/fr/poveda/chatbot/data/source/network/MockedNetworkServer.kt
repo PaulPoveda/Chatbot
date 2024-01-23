@@ -14,7 +14,7 @@ import kotlin.random.Random
  */
 class MockedNetworkServer @Inject constructor(): INetworkDataSource {
     private var serviceLatencyInMillis = Random.nextLong(1000L, 2500L)
-    private val bot = Author(Author.BOT_NAME)
+    private val bot = Author.BOT
     private val botOpeningReponses = mutableListOf(
         "Hello, how are you ?",
         "Why are you coming to see me?",
@@ -50,8 +50,7 @@ class MockedNetworkServer @Inject constructor(): INetworkDataSource {
 
     override suspend fun getResponse(message: Message): Message {
         return coroutineScope {
-            val botMessage = async(Dispatchers.Default) { getBotMessage(message) }
-            botMessage.await()
+            async(Dispatchers.IO) { getBotMessage(message) }.await()
         }
     }
 }

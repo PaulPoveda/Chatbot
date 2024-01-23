@@ -20,7 +20,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MockedNetworkServerUnitTest {
     private lateinit var mockedNetworkServer: MockedNetworkServer
-    private val userAuthor = Author(Author.USER_NAME)
+    private val userAuthor = Author.USER
     private val message1 = Message(userAuthor, "ola")
     private val message2 = Message(userAuthor, "this is a test")
     private val message3 = Message(userAuthor, "are you a real person ?")
@@ -50,7 +50,7 @@ class MockedNetworkServerUnitTest {
                 val responseMessage = mockedNetworkServer.getResponse(message)
                 assertNotNull(responseMessage)
                 assertNotNull(responseMessage.content)
-                assertEquals(Author.BOT_NAME, responseMessage.author.name)
+                assertEquals(Author.BOT, responseMessage.author)
             }
         }
         advanceUntilIdle()

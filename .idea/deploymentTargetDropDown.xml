@@ -2,13 +2,7 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ChatBotScreenPreview">
-        <State />
-      </entry>
       <entry key="MainActivityInstrumentedTest">
-        <State />
-      </entry>
-      <entry key="MainActivityInstrumentedTest (1)">
         <State />
       </entry>
       <entry key="app">
