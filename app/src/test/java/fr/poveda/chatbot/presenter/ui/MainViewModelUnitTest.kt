@@ -1,5 +1,20 @@
 package fr.poveda.chatbot.presenter.ui
 
+import fr.poveda.chatbot.data.IRepository
+import fr.poveda.chatbot.data.model.Author
+import fr.poveda.chatbot.data.model.Message
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
+
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
@@ -28,7 +43,7 @@ class MainViewModelUnitTest {
     fun viewModel_init_test() = runTest {
         Assert.assertNotNull(viewModel.conversation.value)
         Assert.assertEquals(1, viewModel.conversation.value.messages.size)
-        Assert.assertEquals(Author.BOT_NAME, viewModel.conversation.value.messages[0].author.name)
+        Assert.assertEquals(Author.BOT, viewModel.conversation.value.messages[0].author)
         Assert.assertEquals("Hello", viewModel.conversation.value.messages[0].content)
     }
 
@@ -39,7 +54,7 @@ class MainViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(3, viewModel.conversation.value.messages.size)
 
-        Assert.assertEquals(Author.USER_NAME, viewModel.conversation.value.messages[1].author.name)
+        Assert.assertEquals(Author.USER, viewModel.conversation.value.messages[1].author)
         Assert.assertEquals(userTestMessage, viewModel.conversation.value.messages[1].content)
     }
 
@@ -50,10 +65,10 @@ class MainViewModelUnitTest {
         advanceUntilIdle()
         Assert.assertEquals(3, viewModel.conversation.value.messages.size)
 
-        Assert.assertEquals(Author.USER_NAME, viewModel.conversation.value.messages[1].author.name)
+        Assert.assertEquals(Author.USER, viewModel.conversation.value.messages[1].author)
         Assert.assertEquals(userTestMessage, viewModel.conversation.value.messages[1].content)
 
-        Assert.assertEquals(Author.BOT_NAME, viewModel.conversation.value.messages[2].author.name)
+        Assert.assertEquals(Author.BOT, viewModel.conversation.value.messages[2].author)
         Assert.assertEquals("fakeData", viewModel.conversation.value.messages[2].content)
     }
 
@@ -61,5 +76,13 @@ class MainViewModelUnitTest {
     @After
     fun tearDownDispatcher() {
         Dispatchers.resetMain()
+    }
+}
+
+private class MockedRepository : IRepository {
+    private val data = "fakeData"
+
+    override suspend fun getBotResponse(messageToReplyTo: Message): Message {
+        return Message(Author.BOT, data)
     }
 }
