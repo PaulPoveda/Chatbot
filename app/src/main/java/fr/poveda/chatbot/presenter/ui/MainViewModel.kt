@@ -48,16 +48,15 @@ class MainViewModel @Inject constructor(
 
     fun updateConversation(message: String) {
         val userMessage = Message(Author.USER, message)
+        _conversation.value = Conversation(_conversation.value.messages + userMessage)
         viewModelScope.launch {
-            val botResponse: Message
-
             // StateFlow emits only when the whole object (here a Conversation) is modified
             // and not if it is just a reference inside
             // cf. https://stackoverflow.com/questions/72760708/kotlin-stateflow-not-emitting-updates-to-its-collectors
             // emit() is thread safe
-            _conversation.emit(Conversation(_conversation.value.messages + userMessage))
+            // _conversation.emit(Conversation(_conversation.value.messages + userMessage))
             try {
-                botResponse = repository.getBotResponse(userMessage) // in Dispatcher.IO
+                val botResponse = repository.getBotResponse(userMessage) // in Dispatcher.IO
                 _conversation.emit(Conversation(_conversation.value.messages + botResponse))
             } catch (e: Exception) {
                 e.printStackTrace()
